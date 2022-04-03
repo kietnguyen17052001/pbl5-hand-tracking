@@ -36,13 +36,13 @@ while True:
                 fingers.append(0)
         print(fingers)
         num_one = fingers.count(1)
-        if num_one == 5:
+        if num_one == 5 and firebase.get("", "led_bedroom") == "OFF":
             # turn on
             h, w, c = overlaylist[0].shape
             img[0:h, 0:w] = overlaylist[0]
             firebase.put("","led_bedroom", "ON")
             firebase.put("","time_on_off_led_bedroom", now.strftime("%H:%M:%S"))
-        else:
+        elif num_one !=  5 and firebase.get("", "led_bedroom") == "ON":
             # turn off 
             h, w, c = overlaylist[1].shape  
             img[0:h, 0:w] = overlaylist[1]
