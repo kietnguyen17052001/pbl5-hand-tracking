@@ -3,6 +3,7 @@ import time
 import os
 import HandTrackingModule as htm
 from firebase import firebase
+from datetime import datetime               
 ################################
 wCam, hCam = 640, 480
 ################################
@@ -12,7 +13,7 @@ cap.set(3, wCam)
 cap.set(4, hCam)
 folder_path = "LedImage"
 list = os.listdir(folder_path)
-overlaylist = []
+overlaylist = []                                                                                                                                                                                                                                                
 pTime = 0
 for path in list:
     image = cv2.imread(f'{folder_path}/{path}')
@@ -21,9 +22,11 @@ for path in list:
 detector = htm.handDetector(detectionCon=0.7)
 tipIds = [4,8,12,16,20]
 while True:
+    now = datetime.now()
     success, img = cap.read()
     img = detector.findHands(img)
     lmList = detector.findPosition(img, draw=False)
+    # print(lmList)
     if (len(lmList) != 0):
         fingers = []
         for id in range(0,5):
@@ -37,12 +40,15 @@ while True:
             # turn on
             h, w, c = overlaylist[0].shape
             img[0:h, 0:w] = overlaylist[0]
-            firebase.put("","led_livingroom", "ON")
+            firebase.put("","led_bedroom", "ON")
+            firebase.put("","time_on_off_led_bedroom", now.strftime("%H:%M:%S"))
         else:
             # turn off 
-            h, w, c = overlaylist[1].shape
+            h, w, c = overlaylist[1].shape  
             img[0:h, 0:w] = overlaylist[1]
-            firebase.put("","led_livingroom", "OFF")
+            firebase.put("","led_bedroom", "OFF")
+            firebase.put("","time_on_off_led_bedroom", now.strftime("%H:%M:%S"))
+            
 
     cTime = time.time()
     fps = 1/(cTime - pTime)
