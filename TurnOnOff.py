@@ -22,13 +22,12 @@ for path in list:
 detector = htm.handDetector(detectionCon=0.7)
 tipIds = [4,8,12,16,20]
 status = 0
-led = "led_livingroom"
 while True:
     now = datetime.now()
     success, img = cap.read()
     img = detector.findHands(img)
     lmList = detector.findPosition(img, draw=False)
-    mode = firebase.get("", led)
+    mode = firebase.get("/leds/led_livingroom/mode", "")
     if mode == "OFF":
         if status == 0:
             pass
@@ -58,15 +57,15 @@ while True:
             # turn on
             h, w, c = overlaylist[0].shape
             img[0:h, 0:w] = overlaylist[0]
-            firebase.put("", led, "ON")
-            firebase.put("","time_on_off_led_livingroom", now.strftime("%H:%M:%S"))
+            firebase.put("/leds/led_livingroom", "mode", "ON")
+            firebase.put("/leds/led_livingroom", "time_on_off", now.strftime("%H:%M:%S %d/%m/%Y"))
             status = 1
         elif num_one !=  5 and mode == "ON":
             # turn off 
             h, w, c = overlaylist[1].shape  
             img[0:h, 0:w] = overlaylist[1]
-            firebase.put("", led, "OFF")
-            firebase.put("","time_on_off_led_livingroom", now.strftime("%H:%M:%S"))
+            firebase.put("/leds/led_livingroom", "mode", "OFF")
+            firebase.put("/leds/led_livingroom", "time_on_off", now.strftime("%H:%M:%S %d/%m/%Y"))
             status = 0
             
 
