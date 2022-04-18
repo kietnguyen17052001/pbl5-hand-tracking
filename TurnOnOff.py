@@ -1,12 +1,14 @@
 import cv2
 import time
 import os
+import json
 import HandTrackingModule as htm
 from firebase import firebase
-from datetime import datetime               
+from datetime import datetime             
 ################################
 wCam, hCam = 640, 480
 ################################
+
 firebase = firebase.FirebaseApplication("https://fir-led-f0542-default-rtdb.firebaseio.com/", None)
 cap = cv2.VideoCapture(0)
 cap.set(3, wCam)
@@ -64,11 +66,23 @@ while True:
             # turn off 
             h, w, c = overlaylist[1].shape  
             img[0:h, 0:w] = overlaylist[1]
+            
+            # add new time using in detail
+            time_on_off = firebase.get("/leds/led_livingroom/time_on_off", "")
+            timeStart = datetime.strptime(time_on_off, "%H:%M:%S %d/%m/%Y")
+            seconds = int((now - timeStart).total_seconds())
+            timeUsing = {
+                "timeStart": time_on_off,
+                "timeEnd": now.strftime("%H:%M:%S %d/%m/%Y"),
+                "seconds": seconds
+            }
+            firebase.post("/leds/led_livingroom/details", timeUsing)
+            
+            # update mode and time on/off
             firebase.put("/leds/led_livingroom", "mode", "OFF")
             firebase.put("/leds/led_livingroom", "time_on_off", now.strftime("%H:%M:%S %d/%m/%Y"))
             status = 0
             
-
     cTime = time.time()
     fps = 1/(cTime - pTime)
     pTime = cTime
